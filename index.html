@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0a0e27">
-    <title>Escáner de Matrículas Pro v2</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <title>Sistema de Acceso QR Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
     
     <style>
@@ -14,16 +12,16 @@
             --bg-primary: #0a0e27;
             --bg-card: #1a2352;
             --accent-blue: #00d4ff;
-            --accent-purple: #b34fff;
-            --accent-green: #00ff88;
             --accent-red: #ff4757;
-            --text-primary: #ffffff;
+            --accent-green: #00ff88;
+            --text: #ffffff;
+            --text-secondary: #8892b8;
         }
 
         body {
             font-family: 'Outfit', sans-serif;
             background: var(--bg-primary);
-            color: var(--text-primary);
+            color: var(--text);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -34,66 +32,88 @@
         .main-card {
             background: var(--bg-card);
             border-radius: 24px;
-            padding: 20px;
+            padding: 25px;
             width: 100%;
             max-width: 450px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            text-align: center;
         }
 
+        /* Cámara */
         .camera-box {
             position: relative;
             width: 100%;
-            aspect-ratio: 4/3;
+            aspect-ratio: 1;
             background: #000;
-            border-radius: 15px;
+            border-radius: 18px;
             overflow: hidden;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255,255,255,0.1);
         }
 
         video { width: 100%; height: 100%; object-fit: cover; }
 
-        .overlay {
+        .scan-line {
             position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80%; height: 30%;
-            border: 2px solid var(--accent-blue);
-            box-shadow: 0 0 0 1000px rgba(0,0,0,0.4);
-            pointer-events: none;
-            border-radius: 5px;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--accent-blue);
+            box-shadow: 0 0 15px var(--accent-blue);
+            display: none;
+            animation: scan 2s linear infinite;
+            z-index: 10;
+        }
+        @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
+
+        /* Ajuste de Ancho del Input Manual */
+        .input-container {
+            width: 85%; /* Ajustado para que no sea tan ancho */
+            margin: 0 auto 20px;
         }
 
         input[type="text"] {
             width: 100%;
             padding: 12px;
-            font-size: 1.6rem;
+            font-size: 1.4rem;
             font-family: 'JetBrains Mono', monospace;
             text-align: center;
             background: #0f173a;
-            border: 1px solid var(--accent-blue);
+            border: 2px solid rgba(255, 255, 255, 0.1);
             color: white;
-            border-radius: 10px;
-            margin-bottom: 15px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            transition: 0.3s;
         }
 
+        input[type="text"]:focus {
+            border-color: var(--accent-blue);
+            outline: none;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+        }
+
+        /* Botonera */
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+
         .btn {
-            width: 100%;
-            padding: 15px;
-            border-radius: 10px;
+            padding: 14px;
+            border-radius: 12px;
             border: none;
             font-weight: 700;
             cursor: pointer;
-            margin-bottom: 10px;
-            font-size: 1rem;
+            font-size: 0.85rem;
+            transition: 0.3s;
+            text-transform: uppercase;
         }
 
-        .btn-scan { background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); color: white; }
-        .btn-verify { background: #2d3663; color: white; }
+        .btn-start { background: var(--accent-blue); color: #000; }
+        .btn-stop { background: var(--accent-red); color: white; }
+        .btn-check { background: #2d3663; color: white; grid-column: span 2; border: 1px solid rgba(255,255,255,0.1); }
+        .btn:active { transform: scale(0.98); }
 
-        .loading { display: none; text-align: center; margin: 10px; }
+        /* Estados y Resultados */
+        .loading { display: none; margin: 15px 0; }
         .spinner {
-            width: 25px; height: 25px;
-            border: 3px solid rgba(255,255,255,0.2);
+            width: 30px; height: 30px;
+            border: 3px solid rgba(255,255,255,0.1);
             border-top-color: var(--accent-blue);
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -102,158 +122,157 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         .result-card {
-            margin-top: 15px;
-            padding: 15px;
-            border-radius: 12px;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 16px;
             display: none;
+            text-align: left;
+            animation: slideUp 0.4s ease-out;
         }
-        .found { background: rgba(0, 255, 136, 0.15); border: 1px solid var(--accent-green); }
-        .error { background: rgba(255, 71, 87, 0.15); border: 1px solid var(--accent-red); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        #debugCanvas { display: none; } /* Oculto, se usa para procesar imagen */
+        .found { background: rgba(0, 255, 136, 0.08); border: 2px solid var(--accent-green); }
+        .not-found { background: rgba(255, 71, 87, 0.08); border: 2px solid var(--accent-red); }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .detail-label { color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; }
+        .detail-value { font-weight: 700; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
 <div class="main-card">
-    <h2 style="text-align:center; margin-bottom:15px;">Escaner OCR Pro</h2>
+    <h2 style="margin-bottom:20px; font-weight:900; letter-spacing:-1px;">ACCESO POR QR</h2>
 
     <div class="camera-box">
-        <video id="video" autoplay playsinline></video>
-        <div class="overlay"></div>
+        <video id="video" playsinline></video>
+        <div class="scan-line" id="scanLine"></div>
     </div>
 
-    <input type="text" id="matriculaInput" placeholder="ESPERANDO LECTURA...">
+    <div class="input-container">
+        <input type="text" id="manualInput" placeholder="MATRÍCULA">
+    </div>
 
-    <button class="btn btn-scan" id="scanBtn">📸 ESCANEAR MATRÍCULA</button>
-    <button class="btn btn-verify" id="verifyBtn">🔍 CONSULTAR BASE DE DATOS</button>
+    <div class="btn-grid">
+        <button class="btn btn-start" id="btnStart">🟢 ENCENDER</button>
+        <button class="btn btn-stop" id="btnStop">🔴 APAGAR</button>
+        <button class="btn btn-check" id="btnCheckManual">🔍 VERIFICAR MANUALMENTE</button>
+    </div>
 
     <div class="loading" id="loader">
         <div class="spinner"></div>
-        <p id="loaderText" style="font-size: 0.9rem;"></p>
+        <p style="font-size: 0.8rem; color: var(--accent-blue); margin-top:10px;">Consultando base de datos...</p>
     </div>
 
     <div id="resultBox" class="result-card">
-        <h3 id="resTitle" style="margin:0;"></h3>
-        <p id="resInfo" style="margin-top:10px; font-size: 0.9rem;"></p>
+        <div style="text-align:center; margin-bottom:15px;">
+            <span id="resIcon" style="font-size: 2rem;"></span>
+            <h3 id="resMatricula" style="margin:5px 0 0 0; letter-spacing: 2px;"></h3>
+        </div>
+        
+        <div id="resDetails">
+            </div>
     </div>
 </div>
 
-<canvas id="debugCanvas"></canvas>
+<canvas id="canvas" style="display:none;"></canvas>
 
 <script>
-    // --- CONFIGURACIÓN ---
-    const OCR_API_KEY = 'K81899864288957'; // Tu API Key
     const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyKcyBx4YiXWeFzwFHWAYAwx5HE-gFm7L87a6X81Vq-tdKh6VtUtobwWoEn2UXMMB0A/exec';
 
     const video = document.getElementById('video');
-    const input = document.getElementById('matriculaInput');
-    const scanBtn = document.getElementById('scanBtn');
-    const verifyBtn = document.getElementById('verifyBtn');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const scanLine = document.getElementById('scanLine');
+    const manualInput = document.getElementById('manualInput');
     const loader = document.getElementById('loader');
-    const loaderText = document.getElementById('loaderText');
     const resultBox = document.getElementById('resultBox');
 
-    // Iniciar cámara automáticamente
+    let stream = null;
+    let scanning = false;
+
     async function startCamera() {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: 'environment', width: 1280, height: 720 } 
-            });
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
             video.srcObject = stream;
-        } catch (e) {
-            alert("Error: Acceso a cámara denegado.");
+            video.play();
+            scanning = true;
+            scanLine.style.display = 'block';
+            resultBox.style.display = 'none';
+            requestAnimationFrame(tick);
+        } catch (e) { alert("Error: No se detectó cámara."); }
+    }
+
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            video.srcObject = null;
+            scanning = false;
+            scanLine.style.display = 'none';
         }
     }
-    startCamera();
 
-    // Captura y Procesamiento
-    scanBtn.onclick = async () => {
-        const canvas = document.getElementById('debugCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        // 1. Recortar el centro de la imagen (donde está el recuadro azul)
-        // Esto mejora la precisión al ignorar el ruido exterior
-        canvas.width = 600;
-        canvas.height = 200;
-        ctx.drawImage(video, video.videoWidth * 0.1, video.videoHeight * 0.35, video.videoWidth * 0.8, video.videoHeight * 0.3, 0, 0, 600, 200);
+    function tick() {
+        if (scanning && video.readyState === video.HAVE_ENOUGH_DATA) {
+            canvas.height = video.videoHeight;
+            canvas.width = video.videoWidth;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
 
-        // 2. Pre-procesamiento: Convertir a Grises y mejorar contraste
-        let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        let pixels = imgData.data;
-        for (let i = 0; i < pixels.length; i += 4) {
-            let avg = (pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3;
-            let val = avg > 120 ? 255 : 0; // Efecto binario (Blanco y Negro puro)
-            pixels[i] = pixels[i+1] = pixels[i+2] = val;
-        }
-        ctx.putImageData(imgData, 0, 0);
-
-        loader.style.display = 'block';
-        loaderText.innerText = "Analizando con IA...";
-
-        canvas.toBlob(async (blob) => {
-            const fd = new FormData();
-            // CORRECCIÓN: "plate.jpg" es vital para que la API detecte el archivo
-            fd.append('file', blob, "plate.jpg");
-            fd.append('apikey', OCR_API_KEY);
-            fd.append('OCREngine', '2'); // Motor rápido para placas
-
-            try {
-                const res = await fetch('https://api.ocr.space/parse/image', { method: 'POST', body: fd });
-                const data = await res.json();
-                
-                if (data.ParsedResults && data.ParsedResults[0]) {
-                    let text = data.ParsedResults[0].ParsedText;
-                    text = text.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-                    
-                    if (text.length >= 4) {
-                        input.value = text;
-                        verifyBtn.click(); // Consulta automática
-                    } else {
-                        alert("No se leyó bien. Acerca más la cámara.");
-                    }
-                }
-            } catch (err) {
-                alert("Error de conexión con la API OCR");
-            } finally {
-                loader.style.display = 'none';
+            if (code) {
+                manualInput.value = code.data;
+                checkDatabase(code.data);
+                stopCamera();
+                if(navigator.vibrate) navigator.vibrate(200);
+                return;
             }
-        }, 'image/jpeg', 0.9);
-    };
+        }
+        if (scanning) requestAnimationFrame(tick);
+    }
 
-    // Consulta a Google Sheets
-    verifyBtn.onclick = async () => {
-        const id = input.value.trim();
+    async function checkDatabase(id) {
         if (!id) return;
-
         loader.style.display = 'block';
-        loaderText.innerText = "Buscando en base de datos...";
         resultBox.style.display = 'none';
 
         try {
-            const res = await fetch(`${SHEETS_URL}?matricula=${id}`);
+            const res = await fetch(`${SHEETS_URL}?matricula=${encodeURIComponent(id)}`);
             const data = await res.json();
 
             resultBox.style.display = 'block';
+            const details = document.getElementById('resDetails');
+            const resMat = document.getElementById('resMatricula');
+            const resIcon = document.getElementById('resIcon');
+
             if (data.encontrada) {
                 resultBox.className = "result-card found";
-                document.getElementById('resTitle').innerText = "✅ REGISTRADO";
-                document.getElementById('resInfo').innerHTML = `
-                    <b>Matrícula:</b> ${data.matricula}<br>
-                    <b>Propietario:</b> ${data.propietario}<br>
-                    <b>Estado:</b> ${data.estado}`;
+                resIcon.innerText = "✅";
+                resMat.innerText = data.matricula;
+                // Mostramos las 4 columnas del Sheet 
+                details.innerHTML = `
+                    <div class="detail-row"><span class="detail-label">PROPIETARIO</span><span class="detail-value">${data.propietario}</span></div>
+                    <div class="detail-row"><span class="detail-label">ESTADO</span><span class="detail-value" style="color:var(--accent-green)">${data.estado}</span></div>
+                    <div class="detail-row"><span class="detail-label">NOTAS</span><span class="detail-value">${data.notas || 'Sin observaciones'}</span></div>
+                `;
             } else {
-                resultBox.className = "result-card error";
-                document.getElementById('resTitle').innerText = "❌ NO ENCONTRADO";
-                document.getElementById('resInfo').innerText = "Esta placa no existe en el sistema.";
+                resultBox.className = "result-card not-found";
+                resIcon.innerText = "❌";
+                resMat.innerText = id;
+                details.innerHTML = `<p style="text-align:center; color:var(--accent-red); font-weight:700;">Vehículo no autorizado o no registrado.</p>`;
             }
-        } catch (e) {
-            alert("Error al conectar con Google Sheets. Verifica que la URL sea correcta y esté publicada.");
-        } finally {
-            loader.style.display = 'none';
-        }
-    };
-</script>
+        } catch (e) { alert("Error de conexión con la base de datos."); }
+        finally { loader.style.display = 'none'; }
+    }
 
+    document.getElementById('btnStart').onclick = startCamera;
+    document.getElementById('btnStop').onclick = stopCamera;
+    document.getElementById('btnCheckManual').onclick = () => checkDatabase(manualInput.value);
+</script>
 </body>
 </html>
