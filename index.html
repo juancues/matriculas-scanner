@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistema de Acceso QR Pro</title>
+    <title>Verificador VSA - Amazon</title>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
     
     <style>
@@ -12,182 +13,123 @@
             --bg-primary: #0a0e27;
             --bg-card: #1a2352;
             --accent-blue: #00d4ff;
-            --accent-red: #ff4757;
-            --accent-green: #00ff88;
-            --text: #ffffff;
-            --text-secondary: #8892b8;
+            --text-white: #ffffff;
+            --found-color: #00ff88; 
+            --notfound-color: #ff4757;
         }
 
         body {
             font-family: 'Outfit', sans-serif;
             background: var(--bg-primary);
-            color: var(--text);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
+            color: var(--text-white);
+            margin: 0; padding: 5px;
+            height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+
+        /* LOGO AMAZON EN BLANCO */
+        .amazon-logo {
+            width: 100px;
+            margin-bottom: 10px;
+            filter: brightness(0) invert(1); /* Fuerza el logo a blanco */
         }
 
         .main-card {
             background: var(--bg-card);
-            border-radius: 24px;
-            padding: 25px;
-            width: 100%;
-            max-width: 450px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border-radius: 20px; padding: 15px;
+            width: 95%; max-width: 380px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
             text-align: center;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
-        /* Cámara */
+        .card-found { background: var(--found-color) !important; color: #000 !important; }
+        .card-not-found { background: var(--notfound-color) !important; color: #fff !important; }
+
         .camera-box {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1;
-            background: #000;
-            border-radius: 18px;
-            overflow: hidden;
-            margin-bottom: 20px;
+            position: relative; width: 100%; height: 150px;
+            background: #000; border-radius: 12px;
+            overflow: hidden; margin-bottom: 10px;
             border: 2px solid rgba(255,255,255,0.1);
         }
 
         video { width: 100%; height: 100%; object-fit: cover; }
 
         .scan-line {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 2px;
-            background: var(--accent-blue);
-            box-shadow: 0 0 15px var(--accent-blue);
-            display: none;
-            animation: scan 2s linear infinite;
-            z-index: 10;
+            position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--accent-blue); display: none;
+            animation: scan 1.5s linear infinite; z-index: 5;
         }
         @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
 
-        /* Ajuste de Ancho del Input Manual */
-        .input-container {
-            width: 85%; /* Ajustado para que no sea tan ancho */
-            margin: 0 auto 20px;
-        }
-
+        .input-container { width: 70%; margin: 0 auto 10px; }
         input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            font-size: 1.4rem;
-            font-family: 'JetBrains Mono', monospace;
-            text-align: center;
-            background: #0f173a;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            border-radius: 12px;
-            text-transform: uppercase;
-            transition: 0.3s;
+            width: 100%; padding: 8px; font-size: 1.1rem;
+            font-family: 'JetBrains Mono', monospace; text-align: center;
+            background: rgba(15, 23, 58, 0.8); border: 1px solid rgba(255,255,255,0.2);
+            color: white; border-radius: 8px; text-transform: uppercase;
         }
 
-        input[type="text"]:focus {
-            border-color: var(--accent-blue);
-            outline: none;
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
-        }
-
-        /* Botonera */
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
-
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
         .btn {
-            padding: 14px;
-            border-radius: 12px;
-            border: none;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: 0.3s;
-            text-transform: uppercase;
+            padding: 10px; border-radius: 8px; border: none;
+            font-weight: 700; cursor: pointer; font-size: 0.7rem;
+            text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 5px;
         }
-
-        .btn-start { background: var(--accent-blue); color: #000; }
-        .btn-stop { background: var(--accent-red); color: white; }
-        .btn-check { background: #2d3663; color: white; grid-column: span 2; border: 1px solid rgba(255,255,255,0.1); }
-        .btn:active { transform: scale(0.98); }
-
-        /* Estados y Resultados */
-        .loading { display: none; margin: 15px 0; }
-        .spinner {
-            width: 30px; height: 30px;
-            border: 3px solid rgba(255,255,255,0.1);
-            border-top-color: var(--accent-blue);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .btn-start { background: #ffffff; color: #000; } 
+        .btn-stop { background: #333; color: white; }
+        .btn-check { background: #0a0e27; color: white; grid-column: span 2; }
 
         .result-card {
-            margin-top: 20px;
-            padding: 20px;
-            border-radius: 16px;
-            display: none;
-            text-align: left;
-            animation: slideUp 0.4s ease-out;
+            margin-top: 5px; padding: 10px; border-radius: 10px;
+            display: none; text-align: left;
+            background: rgba(0,0,0,0.15);
         }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .found { background: rgba(0, 255, 136, 0.08); border: 2px solid var(--accent-green); }
-        .not-found { background: rgba(255, 71, 87, 0.08); border: 2px solid var(--accent-red); }
-
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        .detail-label { color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; }
-        .detail-value { font-weight: 700; font-size: 0.9rem; }
+        .detail-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.8rem; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .loading { display: none; font-weight: bold; margin: 5px; font-size: 0.75rem; color: var(--accent-blue); }
     </style>
 </head>
 <body>
 
-<div class="main-card">
-    <h2 style="margin-bottom:20px; font-weight:900; letter-spacing:-1px;">ACCESO POR QR</h2>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon Logo" class="amazon-logo">
 
-    <div class="camera-box">
-        <video id="video" playsinline></video>
-        <div class="scan-line" id="scanLine"></div>
-    </div>
+    <div class="main-card" id="mainCard">
+        <h3 style="margin: 0 0 10px 0; font-size: 1.1rem; font-weight: 900;">VERIFICADOR VSA</h3>
 
-    <div class="input-container">
-        <input type="text" id="manualInput" placeholder="MATRÍCULA">
-    </div>
-
-    <div class="btn-grid">
-        <button class="btn btn-start" id="btnStart">🟢 ENCENDER</button>
-        <button class="btn btn-stop" id="btnStop">🔴 APAGAR</button>
-        <button class="btn btn-check" id="btnCheckManual">🔍 VERIFICAR MANUALMENTE</button>
-    </div>
-
-    <div class="loading" id="loader">
-        <div class="spinner"></div>
-        <p style="font-size: 0.8rem; color: var(--accent-blue); margin-top:10px;">Consultando base de datos...</p>
-    </div>
-
-    <div id="resultBox" class="result-card">
-        <div style="text-align:center; margin-bottom:15px;">
-            <span id="resIcon" style="font-size: 2rem;"></span>
-            <h3 id="resMatricula" style="margin:5px 0 0 0; letter-spacing: 2px;"></h3>
+        <div class="camera-box">
+            <video id="video" playsinline></video>
+            <div class="scan-line" id="scanLine"></div>
         </div>
-        
-        <div id="resDetails">
-            </div>
-    </div>
-</div>
 
-<canvas id="canvas" style="display:none;"></canvas>
+        <div class="input-container">
+            <input type="text" id="manualInput" placeholder="MATRÍCULA">
+        </div>
+
+        <div class="btn-grid">
+            <button class="btn btn-start" id="btnStart"><i class="fas fa-camera"></i> ENCENDER</button>
+            <button class="btn btn-stop" id="btnStop"><i class="fas fa-power-off"></i> APAGAR</button>
+            <button class="btn btn-check" id="btnCheckManual"><i class="fas fa-search"></i> VERIFICAR MANUAL</button>
+        </div>
+
+        <div id="loader" class="loading">VERIFICANDO...</div>
+
+        <div id="resultBox" class="result-card">
+            <div style="text-align:center; font-weight: 900; font-size: 1.1rem;" id="resMatricula"></div>
+            <div id="resDetails"></div>
+        </div>
+    </div>
+
+    <canvas id="canvas" style="display:none;"></canvas>
 
 <script>
     const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyKcyBx4YiXWeFzwFHWAYAwx5HE-gFm7L87a6X81Vq-tdKh6VtUtobwWoEn2UXMMB0A/exec';
 
+    const mainCard = document.getElementById('mainCard');
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: false }); // Optimización de renderizado
     const scanLine = document.getElementById('scanLine');
     const manualInput = document.getElementById('manualInput');
     const loader = document.getElementById('loader');
@@ -195,42 +137,54 @@
 
     let stream = null;
     let scanning = false;
+    let lastScanTime = 0;
+
+    window.onload = () => {
+        document.getElementById('btnStart').onclick = startCamera;
+        document.getElementById('btnStop').onclick = stopCamera;
+        document.getElementById('btnCheckManual').onclick = () => checkDatabase(manualInput.value.toUpperCase());
+    };
 
     async function startCamera() {
         try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            if(stream) stopCamera();
+            mainCard.classList.remove('card-found', 'card-not-found');
+            resultBox.style.display = 'none';
+
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'environment', width: { ideal: 640 } } // Resolución optimizada
+            });
             video.srcObject = stream;
             video.play();
             scanning = true;
             scanLine.style.display = 'block';
-            resultBox.style.display = 'none';
             requestAnimationFrame(tick);
-        } catch (e) { alert("Error: No se detectó cámara."); }
+        } catch (e) { alert("Error de cámara"); }
     }
 
     function stopCamera() {
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-            video.srcObject = null;
-            scanning = false;
-            scanLine.style.display = 'none';
-        }
+        scanning = false;
+        if (stream) { stream.getTracks().forEach(t => t.stop()); video.srcObject = null; }
+        scanLine.style.display = 'none';
     }
 
     function tick() {
         if (scanning && video.readyState === video.HAVE_ENOUGH_DATA) {
-            canvas.height = video.videoHeight;
-            canvas.width = video.videoWidth;
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(imageData.data, imageData.width, imageData.height);
-
-            if (code) {
-                manualInput.value = code.data;
-                checkDatabase(code.data);
-                stopCamera();
-                if(navigator.vibrate) navigator.vibrate(200);
-                return;
+            // Escanear cada 100ms para no saturar y ser más rápido
+            const now = Date.now();
+            if (now - lastScanTime > 100) {
+                lastScanTime = now;
+                canvas.height = video.videoHeight;
+                canvas.width = video.videoWidth;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const code = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height);
+                
+                if (code) {
+                    manualInput.value = code.data;
+                    checkDatabase(code.data);
+                    stopCamera();
+                    return;
+                }
             }
         }
         if (scanning) requestAnimationFrame(tick);
@@ -240,39 +194,31 @@
         if (!id) return;
         loader.style.display = 'block';
         resultBox.style.display = 'none';
+        mainCard.classList.remove('card-found', 'card-not-found');
 
         try {
-            const res = await fetch(`${SHEETS_URL}?matricula=${encodeURIComponent(id)}`);
-            const data = await res.json();
+            // Fetch optimizado
+            const response = await fetch(`${SHEETS_URL}?matricula=${encodeURIComponent(id)}`);
+            const data = await response.json();
 
             resultBox.style.display = 'block';
-            const details = document.getElementById('resDetails');
-            const resMat = document.getElementById('resMatricula');
-            const resIcon = document.getElementById('resIcon');
-
             if (data.encontrada) {
-                resultBox.className = "result-card found";
-                resIcon.innerText = "✅";
-                resMat.innerText = data.matricula;
-                // Mostramos las 4 columnas del Sheet 
-                details.innerHTML = `
-                    <div class="detail-row"><span class="detail-label">PROPIETARIO</span><span class="detail-value">${data.propietario}</span></div>
-                    <div class="detail-row"><span class="detail-label">ESTADO</span><span class="detail-value" style="color:var(--accent-green)">${data.estado}</span></div>
-                    <div class="detail-row"><span class="detail-label">NOTAS</span><span class="detail-value">${data.notas || 'Sin observaciones'}</span></div>
+                mainCard.classList.add('card-found');
+                document.getElementById('resMatricula').innerText = "✅ " + data.matricula;
+                document.getElementById('resDetails').innerHTML = `
+                    <div class="detail-row"><span>PROPIETARIO:</span><b>${data.propietario}</b></div>
+                    <div class="detail-row"><span>ESTADO:</span><b>${data.estado}</b></div>
+                    <div class="detail-row"><span>NOTAS:</span><b>${data.notas || '-'}</b></div>
                 `;
+                if(navigator.vibrate) navigator.vibrate(150);
             } else {
-                resultBox.className = "result-card not-found";
-                resIcon.innerText = "❌";
-                resMat.innerText = id;
-                details.innerHTML = `<p style="text-align:center; color:var(--accent-red); font-weight:700;">Vehículo no autorizado o no registrado.</p>`;
+                mainCard.classList.add('card-not-found');
+                document.getElementById('resMatricula').innerText = "❌ NO REGISTRADO";
+                document.getElementById('resDetails').innerHTML = `<p style="text-align:center; font-size:0.8rem;">No existe en sistema.</p>`;
             }
-        } catch (e) { alert("Error de conexión con la base de datos."); }
+        } catch (e) { console.error("Error base datos"); }
         finally { loader.style.display = 'none'; }
     }
-
-    document.getElementById('btnStart').onclick = startCamera;
-    document.getElementById('btnStop').onclick = stopCamera;
-    document.getElementById('btnCheckManual').onclick = () => checkDatabase(manualInput.value);
 </script>
 </body>
 </html>
