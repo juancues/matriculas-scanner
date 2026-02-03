@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0a0e27">
-    <title>Escáner de Matrículas</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>Escáner de Matrículas Pro</title>
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -25,900 +22,276 @@
             --accent-yellow: #ffd93d;
             --text-primary: #ffffff;
             --text-secondary: #8892b8;
-            --shadow-glow: 0 0 40px rgba(0, 212, 255, 0.3);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Outfit', sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* Animated background */
-        .bg-animation {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0.6;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(179, 79, 255, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 40% 20%, rgba(0, 255, 136, 0.1) 0%, transparent 50%);
-            animation: bgShift 15s ease-in-out infinite;
-        }
-
-        @keyframes bgShift {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.1) rotate(2deg); }
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
             position: relative;
             z-index: 1;
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 20px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
 
-        /* Header */
-        .header {
-            text-align: center;
-            padding: 30px 0 40px;
-            animation: fadeInDown 0.8s ease-out;
-        }
-
-        .logo {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
+        .header { text-align: center; padding: 20px 0; }
         .title {
             font-size: 1.8rem;
             font-weight: 900;
             background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 8px;
-            letter-spacing: -0.5px;
         }
 
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            font-weight: 300;
-        }
-
-        /* Main Card */
         .main-card {
             background: var(--bg-card);
             border-radius: 24px;
-            padding: 30px;
-            box-shadow: 
-                0 20px 60px rgba(0, 0, 0, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            margin-bottom: 20px;
-            animation: fadeInUp 0.8s ease-out 0.2s both;
-            position: relative;
-            overflow: hidden;
         }
 
-        .main-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
-            animation: shimmer 3s ease-in-out infinite;
-        }
-
-        @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-
-        /* Camera Section */
-        .camera-section {
-            margin-bottom: 25px;
-        }
-
-        .camera-label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
+        /* Camera */
         .camera-container {
             position: relative;
             border-radius: 16px;
             overflow: hidden;
-            background: var(--bg-secondary);
+            background: #000;
             aspect-ratio: 4/3;
-            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
         }
 
-        #video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: none;
-        }
-
-        #video.active {
-            display: block;
-        }
-
-        .camera-placeholder {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: var(--text-secondary);
-        }
-
-        .camera-placeholder .icon {
-            font-size: 4rem;
-            margin-bottom: 10px;
-            opacity: 0.3;
-        }
+        #video { width: 100%; height: 100%; object-fit: cover; display: none; }
+        #video.active { display: block; }
 
         .camera-overlay {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 80%;
-            height: 60%;
-            border: 3px solid var(--accent-blue);
-            border-radius: 12px;
+            width: 85%; height: 40%;
+            border: 2px solid var(--accent-blue);
+            border-radius: 8px;
             box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
             pointer-events: none;
-            animation: scanPulse 2s ease-in-out infinite;
         }
 
-        @keyframes scanPulse {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
-        }
-
-        .camera-overlay::before,
-        .camera-overlay::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border: 3px solid var(--accent-blue);
-        }
-
-        .camera-overlay::before {
-            top: -3px;
-            left: -3px;
-            border-right: none;
-            border-bottom: none;
-        }
-
-        .camera-overlay::after {
-            bottom: -3px;
-            right: -3px;
-            border-left: none;
-            border-top: none;
-        }
-
-        /* Manual Input */
-        .manual-section {
-            margin-bottom: 25px;
-        }
-
-        .input-group {
-            position: relative;
-        }
-
-        .input-label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
+        /* Input & Buttons */
         input[type="text"] {
             width: 100%;
-            padding: 16px 20px;
-            font-size: 1.2rem;
+            padding: 15px;
+            font-size: 1.5rem;
             font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
             text-transform: uppercase;
+            text-align: center;
             background: var(--bg-secondary);
             border: 2px solid rgba(255, 255, 255, 0.1);
+            color: white;
             border-radius: 12px;
-            color: var(--text-primary);
-            transition: all 0.3s ease;
-            letter-spacing: 2px;
-            text-align: center;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
-            transform: translateY(-2px);
-        }
-
-        /* Buttons */
-        .button-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .btn {
-            padding: 16px 24px;
-            font-size: 1rem;
-            font-weight: 700;
-            font-family: 'Outfit', sans-serif;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .btn:active::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            color: white;
-            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(0, 212, 255, 0.4);
-        }
-
-        .btn-secondary {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--accent-blue);
-            background: rgba(0, 212, 255, 0.1);
-        }
-
-        .btn-full {
-            grid-column: 1 / -1;
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* OCR Status */
-        .ocr-status {
-            text-align: center;
-            padding: 12px;
-            background: rgba(255, 217, 61, 0.1);
-            border: 1px solid rgba(255, 217, 61, 0.3);
-            border-radius: 10px;
-            margin-bottom: 15px;
-            display: none;
-            font-size: 0.9rem;
-            color: var(--accent-yellow);
-        }
-
-        .ocr-status.show {
-            display: block;
-        }
-
-        .ocr-status .confidence {
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-top: 5px;
-        }
-
-        /* Result Card */
-        .result-card {
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            padding: 25px;
-            margin-top: 20px;
-            border: 2px solid;
-            animation: slideIn 0.5s ease-out;
-            display: none;
-        }
-
-        .result-card.show {
-            display: block;
-        }
-
-        .result-card.found {
-            border-color: var(--accent-green);
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05), transparent);
-        }
-
-        .result-card.not-found {
-            border-color: var(--accent-red);
-            background: linear-gradient(135deg, rgba(255, 71, 87, 0.05), transparent);
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .result-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .result-icon {
-            font-size: 3rem;
-            animation: bounceIn 0.6s ease-out;
-        }
-
-        @keyframes bounceIn {
-            0% { transform: scale(0); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-
-        .result-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-        }
-
-        .result-matricula {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.8rem;
-            font-weight: 700;
-            letter-spacing: 3px;
-            text-align: center;
+            width: 100%;
             padding: 15px;
-            background: var(--bg-primary);
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: 0.3s;
         }
 
-        .result-details {
-            display: grid;
-            gap: 12px;
-        }
+        .btn-primary { background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); color: white; }
+        .btn-secondary { background: var(--bg-secondary); color: white; }
 
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 8px;
-        }
-
-        .detail-label {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .detail-value {
-            font-weight: 600;
-            text-align: right;
-        }
-
-        /* Loading */
-        .loading {
-            display: none;
-            text-align: center;
+        /* Results */
+        .result-card {
+            margin-top: 20px;
             padding: 20px;
+            border-radius: 15px;
+            display: none;
+            border-left: 5px solid;
         }
 
-        .loading.show {
-            display: block;
-        }
+        .found { background: rgba(0, 255, 136, 0.1); border-color: var(--accent-green); }
+        .not-found { background: rgba(255, 71, 87, 0.1); border-color: var(--accent-red); }
 
+        .loading { display: none; text-align: center; margin: 15px 0; }
         .spinner {
-            width: 50px;
-            height: 50px;
-            margin: 0 auto 15px;
-            border: 4px solid rgba(255, 255, 255, 0.1);
+            width: 30px; height: 30px;
+            border: 3px solid rgba(255,255,255,0.1);
             border-top-color: var(--accent-blue);
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            display: inline-block;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Animations */
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Toast notifications */
         .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--bg-card);
-            color: var(--text-primary);
-            padding: 16px 24px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            z-index: 1000;
-            transition: transform 0.3s ease;
-            max-width: 90%;
-        }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .info-box {
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-        }
-
-        .info-icon {
-            font-size: 1.5rem;
-            flex-shrink: 0;
-        }
-
-        .info-text {
-            font-size: 0.9rem;
-            line-height: 1.5;
-            color: var(--text-secondary);
+            position: fixed; bottom: 20px; background: #333; color: white;
+            padding: 10px 20px; border-radius: 10px; display: none; z-index: 100;
         }
     </style>
 </head>
 <body>
-    <div class="bg-animation"></div>
-    
-    <div class="container">
-        <header class="header">
-            <div class="logo">🚗</div>
-            <h1 class="title">Escáner de Matrículas</h1>
-            <p class="subtitle">Detección automática con IA</p>
-        </header>
 
-        <div class="main-card">
-            <div class="info-box">
-                <div class="info-icon">🤖</div>
-                <div class="info-text">
-                    <strong>OCR Profesional Activado</strong><br>
-                    Usa PlateRecognizer AI para detección automática de matrículas con alta precisión.
-                </div>
-            </div>
+<div class="container">
+    <header class="header">
+        <h1 class="title">Lector de Matrículas</h1>
+    </header>
 
-            <!-- Camera Section -->
-            <div class="camera-section">
-                <div class="camera-label">
-                    📸 <span>Cámara</span>
-                </div>
-                <div class="camera-container">
-                    <video id="video" autoplay playsinline></video>
-                    <div class="camera-placeholder" id="cameraPlaceholder">
-                        <div class="icon">📷</div>
-                        <div>Apunta a la matrícula y captura</div>
-                    </div>
-                    <div class="camera-overlay" id="cameraOverlay" style="display: none;"></div>
-                </div>
-            </div>
+    <div class="main-card">
+        <div class="camera-container">
+            <video id="video" autoplay playsinline></video>
+            <div class="camera-overlay" id="overlay" style="display:none"></div>
+        </div>
 
-            <!-- OCR Status -->
-            <div class="ocr-status" id="ocrStatus">
-                <div>🔍 Analizando matrícula...</div>
-                <div class="confidence" id="ocrConfidence"></div>
-            </div>
+        <input type="text" id="matriculaInput" placeholder="ABC1234">
 
-            <!-- Manual Input -->
-            <div class="manual-section">
-                <label class="input-label">Matrícula detectada (editable)</label>
-                <div class="input-group">
-                    <input 
-                        type="text" 
-                        id="matriculaInput" 
-                        placeholder="1234ABC"
-                        maxlength="10"
-                    >
-                </div>
-            </div>
+        <button class="btn btn-secondary" id="startBtn">📸 Activar Cámara</button>
+        <button class="btn btn-primary" id="scanBtn" style="display:none">⚡ Escanear Ahora</button>
+        <button class="btn btn-primary" id="verifyBtn">🔍 Consultar en Base de Datos</button>
 
-            <!-- Buttons -->
-            <div class="button-group">
-                <button class="btn btn-secondary" id="startCameraBtn">
-                    📸 Iniciar Cámara
-                </button>
-                <button class="btn btn-primary" id="scanBtn" style="display: none;">
-                    🔍 Escanear
-                </button>
-                <button class="btn btn-secondary" id="stopCameraBtn" style="display: none;">
-                    ⏹️ Detener
-                </button>
-                <button class="btn btn-primary btn-full" id="verifyBtn">
-                    ✅ Verificar Matrícula
-                </button>
-            </div>
+        <div class="loading" id="loader">
+            <div class="spinner"></div>
+            <p id="loaderText">Procesando...</p>
+        </div>
 
-            <!-- Loading -->
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <div id="loadingText">Verificando...</div>
-            </div>
-
-            <!-- Result -->
-            <div class="result-card" id="resultCard">
-                <div class="result-header">
-                    <div class="result-icon" id="resultIcon"></div>
-                    <div>
-                        <div class="result-title" id="resultTitle"></div>
-                    </div>
-                </div>
-                <div class="result-matricula" id="resultMatricula"></div>
-                <div class="result-details" id="resultDetails"></div>
-            </div>
+        <div id="resultBox" class="result-card">
+            <h3 id="resTitle"></h3>
+            <p id="resInfo"></p>
         </div>
     </div>
+</div>
 
-    <div class="toast" id="toast"></div>
+<div id="toast" class="toast"></div>
 
-    <script>
-        // ============================================
-        // 🔧 CONFIGURACIÓN
-        // ============================================
-        const PLATE_RECOGNIZER_API_KEY = 'fb6b713a660238db222964f4c8882662dbfc3554';
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyKcyBx4YiXWeFzwFHWAYAwx5HE-gFm7L87a6X81Vq-tdKh6VtUtobwWoEn2UXMMB0A/exec';
-        // ============================================
+<script>
+    // --- CONFIGURACIÓN ---
+    const OCR_API_KEY = 'K81899864288957'; // REEMPLAZA CON TU KEY DE OCR.SPACE
+    const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbyKcyBx4YiXWeFzwFHWAYAwx5HE-gFm7L87a6X81Vq-tdKh6VtUtobwWoEn2UXMMB0A/exec';
 
-        // Elements
-        const video = document.getElementById('video');
-        const cameraPlaceholder = document.getElementById('cameraPlaceholder');
-        const cameraOverlay = document.getElementById('cameraOverlay');
-        const startCameraBtn = document.getElementById('startCameraBtn');
-        const scanBtn = document.getElementById('scanBtn');
-        const stopCameraBtn = document.getElementById('stopCameraBtn');
-        const verifyBtn = document.getElementById('verifyBtn');
-        const matriculaInput = document.getElementById('matriculaInput');
-        const ocrStatus = document.getElementById('ocrStatus');
-        const ocrConfidence = document.getElementById('ocrConfidence');
-        const resultCard = document.getElementById('resultCard');
-        const loading = document.getElementById('loading');
-        const loadingText = document.getElementById('loadingText');
-        const toast = document.getElementById('toast');
+    const video = document.getElementById('video');
+    const matriculaInput = document.getElementById('matriculaInput');
+    const scanBtn = document.getElementById('scanBtn');
+    const startBtn = document.getElementById('startBtn');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const resultBox = document.getElementById('resultBox');
+    const loader = document.getElementById('loader');
 
-        let stream = null;
+    let stream = null;
 
-        // Start Camera
-        startCameraBtn.addEventListener('click', async () => {
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        facingMode: 'environment',
-                        width: { ideal: 1920 },
-                        height: { ideal: 1080 }
-                    } 
-                });
-                video.srcObject = stream;
-                video.classList.add('active');
-                cameraPlaceholder.style.display = 'none';
-                cameraOverlay.style.display = 'block';
-                startCameraBtn.style.display = 'none';
-                scanBtn.style.display = 'block';
-                stopCameraBtn.style.display = 'block';
-                
-                showToast('✅ Cámara activada. Centra la matrícula y presiona "Escanear"');
-            } catch (err) {
-                showToast('❌ No se pudo acceder a la cámara');
-                console.error(err);
-            }
-        });
+    // Iniciar Cámara
+    startBtn.onclick = async () => {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'environment' } 
+            });
+            video.srcObject = stream;
+            video.classList.add('active');
+            startBtn.style.display = 'none';
+            scanBtn.style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        } catch (e) {
+            showToast("Error al acceder a la cámara");
+        }
+    };
 
-        // Stop Camera
-        stopCameraBtn.addEventListener('click', () => {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                video.classList.remove('active');
-                cameraPlaceholder.style.display = 'block';
-                cameraOverlay.style.display = 'none';
-                startCameraBtn.style.display = 'block';
-                scanBtn.style.display = 'none';
-                stopCameraBtn.style.display = 'none';
-            }
-        });
+    // Capturar y Procesar OCR
+    scanBtn.onclick = async () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        
+        loader.style.display = 'block';
+        document.getElementById('loaderText').innerText = "IA leyendo matrícula...";
 
-        // Scan with PlateRecognizer
-        scanBtn.addEventListener('click', async () => {
-            // Capture image from video
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0);
-            
-            // Convert to blob
-            canvas.toBlob(async (blob) => {
-                await recognizePlate(blob);
-            }, 'image/jpeg', 0.95);
-        });
-
-        // Recognize plate using PlateRecognizer API
-        async function recognizePlate(imageBlob) {
-            ocrStatus.classList.add('show');
-            ocrConfidence.textContent = 'Procesando...';
-            loading.classList.add('show');
-            loadingText.textContent = 'Detectando matrícula con IA...';
-            resultCard.classList.remove('show');
+        canvas.toBlob(async (blob) => {
+            const formData = new FormData();
+            formData.append('file', blob);
+            formData.append('apikey', OCR_API_KEY);
+            formData.append('OCREngine', '2'); // Motor especializado en textos cortos
 
             try {
-                const formData = new FormData();
-                formData.append('upload', imageBlob);
-                formData.append('regions', 'es'); // España
-
-                const response = await fetch('https://api.platerecognizer.com/v1/plate-reader/', {
+                const resp = await fetch('https://api.ocr.space/parse/image', {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Token ${PLATE_RECOGNIZER_API_KEY}`
-                    },
                     body: formData
                 });
-
-                const data = await response.json();
-                console.log('PlateRecognizer Response:', data);
-
-                loading.classList.remove('show');
-
-                if (data.results && data.results.length > 0) {
-                    const plate = data.results[0];
-                    const plateText = plate.plate.toUpperCase();
-                    const confidence = Math.round(plate.score * 100);
-
-                    // Show detected plate
-                    matriculaInput.value = plateText;
-                    ocrConfidence.textContent = `Matrícula detectada: ${plateText} (Confianza: ${confidence}%)`;
+                const data = await resp.json();
+                
+                if(data.ParsedResults && data.ParsedResults[0]) {
+                    let texto = data.ParsedResults[0].ParsedText;
+                    // Limpieza: Solo letras y números, quitar espacios
+                    texto = texto.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
                     
-                    // Change color based on confidence
-                    if (confidence >= 90) {
-                        ocrStatus.style.borderColor = 'var(--accent-green)';
-                        ocrStatus.style.background = 'rgba(0, 255, 136, 0.1)';
-                        ocrConfidence.style.color = 'var(--accent-green)';
-                    } else if (confidence >= 70) {
-                        ocrStatus.style.borderColor = 'var(--accent-yellow)';
-                        ocrStatus.style.background = 'rgba(255, 217, 61, 0.1)';
-                        ocrConfidence.style.color = 'var(--accent-yellow)';
+                    if(texto.length > 3) {
+                        matriculaInput.value = texto;
+                        showToast("✅ Detectada: " + texto);
+                        verifyBtn.click(); // Verificar automáticamente
                     } else {
-                        ocrStatus.style.borderColor = 'var(--accent-red)';
-                        ocrStatus.style.background = 'rgba(255, 71, 87, 0.1)';
-                        ocrConfidence.style.color = 'var(--accent-red)';
+                        showToast("⚠️ No se leyó bien. Intenta de nuevo.");
                     }
-
-                    showToast(`✅ Matrícula detectada: ${plateText} (${confidence}% confianza)`);
-                    
-                    // Vibrate on success
-                    if (navigator.vibrate) {
-                        navigator.vibrate(200);
-                    }
-
-                    // Auto-verify if confidence is high
-                    if (confidence >= 90) {
-                        setTimeout(() => {
-                            verifyBtn.click();
-                        }, 1500);
-                    }
-                } else {
-                    ocrConfidence.textContent = 'No se detectó ninguna matrícula';
-                    ocrStatus.style.borderColor = 'var(--accent-red)';
-                    ocrStatus.style.background = 'rgba(255, 71, 87, 0.1)';
-                    ocrConfidence.style.color = 'var(--accent-red)';
-                    showToast('❌ No se detectó ninguna matrícula. Intenta de nuevo o escribe manualmente.');
                 }
             } catch (err) {
-                loading.classList.remove('show');
-                ocrStatus.classList.remove('show');
-                showToast('❌ Error al procesar la imagen');
-                console.error('PlateRecognizer Error:', err);
+                showToast("Error en el servidor OCR");
+            } finally {
+                loader.style.display = 'none';
             }
-        }
+        }, 'image/jpeg');
+    };
 
-        // Verify License Plate
-        verifyBtn.addEventListener('click', async () => {
-            const matricula = matriculaInput.value.trim().toUpperCase();
+    // Verificar contra Google Sheets
+    verifyBtn.onclick = async () => {
+        const id = matriculaInput.value.trim();
+        if(!id) return showToast("Escribe una matrícula");
 
-            if (!matricula) {
-                showToast('❌ Introduce una matrícula');
-                return;
-            }
+        loader.style.display = 'block';
+        document.getElementById('loaderText').innerText = "Buscando en Google Sheets...";
+        resultBox.style.display = 'none';
 
-            // Show loading
-            loading.classList.add('show');
-            loadingText.textContent = 'Verificando en base de datos...';
-            resultCard.classList.remove('show');
-            ocrStatus.classList.remove('show');
+        try {
+            const resp = await fetch(`${SHEETS_API_URL}?matricula=${id}`);
+            const data = await resp.json();
 
-            try {
-                const response = await fetch(`${API_URL}?matricula=${encodeURIComponent(matricula)}`);
-                const data = await response.json();
-
-                // Hide loading
-                loading.classList.remove('show');
-
-                // Show result
-                displayResult(data);
-            } catch (err) {
-                loading.classList.remove('show');
-                showToast('❌ Error al conectar con la API');
-                console.error(err);
-            }
-        });
-
-        // Display Result
-        function displayResult(data) {
-            const resultIcon = document.getElementById('resultIcon');
-            const resultTitle = document.getElementById('resultTitle');
-            const resultMatricula = document.getElementById('resultMatricula');
-            const resultDetails = document.getElementById('resultDetails');
-
-            resultCard.classList.remove('found', 'not-found');
-            
-            if (data.encontrada) {
-                resultCard.classList.add('found');
-                resultIcon.textContent = '✅';
-                resultTitle.textContent = 'Matrícula Encontrada';
-                resultMatricula.textContent = data.matricula;
-                resultMatricula.style.color = 'var(--accent-green)';
-                
-                resultDetails.innerHTML = `
-                    <div class="detail-row">
-                        <span class="detail-label">Propietario</span>
-                        <span class="detail-value">${data.propietario || 'N/A'}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Estado</span>
-                        <span class="detail-value" style="color: var(--accent-green)">${data.estado || 'N/A'}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Notas</span>
-                        <span class="detail-value">${data.notas || 'N/A'}</span>
-                    </div>
-                `;
-                
-                // Vibrate on success
-                if (navigator.vibrate) {
-                    navigator.vibrate([200, 100, 200]);
-                }
+            resultBox.style.display = 'block';
+            if(data.encontrada) {
+                resultBox.className = "result-card found";
+                document.getElementById('resTitle').innerText = "✅ " + data.matricula;
+                document.getElementById('resInfo').innerHTML = `
+                    <b>Dueño:</b> ${data.propietario}<br>
+                    <b>Estado:</b> ${data.estado}<br>
+                    <b>Notas:</b> ${data.notas}`;
+                if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
             } else {
-                resultCard.classList.add('not-found');
-                resultIcon.textContent = '❌';
-                resultTitle.textContent = 'Matrícula No Encontrada';
-                resultMatricula.textContent = data.matricula || matriculaInput.value;
-                resultMatricula.style.color = 'var(--accent-red)';
-                
-                resultDetails.innerHTML = `
-                    <div class="detail-row">
-                        <span class="detail-label">Estado</span>
-                        <span class="detail-value" style="color: var(--accent-red)">No registrada</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Acción recomendada</span>
-                        <span class="detail-value">Verificar con administración</span>
-                    </div>
-                `;
-                
-                // Vibrate on not found
-                if (navigator.vibrate) {
-                    navigator.vibrate(500);
-                }
+                resultBox.className = "result-card not-found";
+                document.getElementById('resTitle').innerText = "❌ No registrado";
+                document.getElementById('resInfo').innerText = "La matrícula " + id + " no existe en la base de datos.";
             }
-
-            resultCard.classList.add('show');
-            
-            // Clear input for next scan
-            setTimeout(() => {
-                matriculaInput.value = '';
-            }, 3000);
+        } catch (e) {
+            showToast("Error conectando con la base de datos");
+        } finally {
+            loader.style.display = 'none';
         }
+    };
 
-        // Toast notification
-        function showToast(message) {
-            toast.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 3000);
+    }
+</script>
 
-        // Allow Enter key to verify
-        matriculaInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                verifyBtn.click();
-            }
-        });
-    </script>
 </body>
 </html>
