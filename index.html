@@ -22,73 +22,79 @@
             font-family: 'Outfit', sans-serif;
             background: var(--bg-primary);
             color: var(--text-white);
-            margin: 0; padding: 5px;
+            margin: 0; padding: 10px;
             height: 100vh; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            overflow: hidden;
+            align-items: center; justify-content: flex-start;
+            overflow-y: auto; /* Permitir scroll si el contenido excede la pantalla */
         }
 
-        /* LOGO AMAZON EN BLANCO */
         .amazon-logo {
-            width: 100px;
-            margin-bottom: 10px;
-            filter: brightness(0) invert(1); /* Fuerza el logo a blanco */
+            width: 120px;
+            margin: 15px 0;
+            filter: brightness(0) invert(1);
         }
 
         .main-card {
             background: var(--bg-card);
-            border-radius: 20px; padding: 15px;
-            width: 95%; max-width: 380px;
+            border-radius: 20px; padding: 20px;
+            width: 95%; max-width: 420px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
             text-align: center;
-            transition: background 0.3s ease, color 0.3s ease;
+            transition: background 0.3s ease;
         }
 
         .card-found { background: var(--found-color) !important; color: #000 !important; }
         .card-not-found { background: var(--notfound-color) !important; color: #fff !important; }
 
+        /* MARCO DE CÁMARA ALARGADO (75% MÁS ALTO) */
         .camera-box {
-            position: relative; width: 100%; height: 150px;
+            position: relative; width: 100%; 
+            height: 280px; /* Incrementado significativamente */
             background: #000; border-radius: 12px;
-            overflow: hidden; margin-bottom: 10px;
+            overflow: hidden; margin-bottom: 15px;
             border: 2px solid rgba(255,255,255,0.1);
         }
 
         video { width: 100%; height: 100%; object-fit: cover; }
 
         .scan-line {
-            position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            position: absolute; top: 0; left: 0; width: 100%; height: 3px;
             background: var(--accent-blue); display: none;
             animation: scan 1.5s linear infinite; z-index: 5;
         }
         @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
 
-        .input-container { width: 70%; margin: 0 auto 10px; }
+        .input-container { width: 80%; margin: 0 auto 15px; }
         input[type="text"] {
-            width: 100%; padding: 8px; font-size: 1.1rem;
+            width: 100%; padding: 12px; font-size: 1.2rem;
             font-family: 'JetBrains Mono', monospace; text-align: center;
             background: rgba(15, 23, 58, 0.8); border: 1px solid rgba(255,255,255,0.2);
-            color: white; border-radius: 8px; text-transform: uppercase;
+            color: white; border-radius: 10px; text-transform: uppercase;
         }
 
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+        /* BOTONES 40% MÁS GRANDES (ALTURA Y FUENTE) */
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .btn {
-            padding: 10px; border-radius: 8px; border: none;
-            font-weight: 700; cursor: pointer; font-size: 0.7rem;
-            text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 5px;
+            padding: 18px; /* Altura incrementada */
+            border-radius: 12px; border: none;
+            font-weight: 800; cursor: pointer; 
+            font-size: 1rem; /* Fuente incrementada */
+            text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: transform 0.1s;
         }
+        .btn:active { transform: scale(0.96); }
         
         .btn-start { background: #ffffff; color: #000; } 
         .btn-stop { background: #333; color: white; }
-        .btn-check { background: #0a0e27; color: white; grid-column: span 2; }
+        .btn-check { background: #0a0e27; color: white; grid-column: span 2; padding: 20px; }
 
         .result-card {
-            margin-top: 5px; padding: 10px; border-radius: 10px;
+            margin-top: 10px; padding: 15px; border-radius: 12px;
             display: none; text-align: left;
-            background: rgba(0,0,0,0.15);
+            background: rgba(0,0,0,0.2);
         }
-        .detail-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.8rem; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .loading { display: none; font-weight: bold; margin: 5px; font-size: 0.75rem; color: var(--accent-blue); }
+        .detail-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.9rem; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .loading { display: none; font-weight: bold; margin: 10px; color: var(--accent-blue); }
     </style>
 </head>
 <body>
@@ -96,7 +102,7 @@
     <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon Logo" class="amazon-logo">
 
     <div class="main-card" id="mainCard">
-        <h3 style="margin: 0 0 10px 0; font-size: 1.1rem; font-weight: 900;">VERIFICADOR VSA</h3>
+        <h3 style="margin: 0 0 15px 0; font-size: 1.3rem; font-weight: 900; letter-spacing: 1px;">VERIFICADOR VSA</h3>
 
         <div class="camera-box">
             <video id="video" playsinline></video>
@@ -113,10 +119,10 @@
             <button class="btn btn-check" id="btnCheckManual"><i class="fas fa-search"></i> VERIFICAR MANUAL</button>
         </div>
 
-        <div id="loader" class="loading">VERIFICANDO...</div>
+        <div id="loader" class="loading">CONECTANDO...</div>
 
         <div id="resultBox" class="result-card">
-            <div style="text-align:center; font-weight: 900; font-size: 1.1rem;" id="resMatricula"></div>
+            <div style="text-align:center; font-weight: 900; font-size: 1.3rem; margin-bottom: 8px;" id="resMatricula"></div>
             <div id="resDetails"></div>
         </div>
     </div>
@@ -129,7 +135,7 @@
     const mainCard = document.getElementById('mainCard');
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d', { alpha: false }); // Optimización de renderizado
+    const ctx = canvas.getContext('2d', { alpha: false });
     const scanLine = document.getElementById('scanLine');
     const manualInput = document.getElementById('manualInput');
     const loader = document.getElementById('loader');
@@ -137,7 +143,6 @@
 
     let stream = null;
     let scanning = false;
-    let lastScanTime = 0;
 
     window.onload = () => {
         document.getElementById('btnStart').onclick = startCamera;
@@ -152,14 +157,14 @@
             resultBox.style.display = 'none';
 
             stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: 'environment', width: { ideal: 640 } } // Resolución optimizada
+                video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } 
             });
             video.srcObject = stream;
             video.play();
             scanning = true;
             scanLine.style.display = 'block';
             requestAnimationFrame(tick);
-        } catch (e) { alert("Error de cámara"); }
+        } catch (e) { alert("Error cámara"); }
     }
 
     function stopCamera() {
@@ -170,21 +175,16 @@
 
     function tick() {
         if (scanning && video.readyState === video.HAVE_ENOUGH_DATA) {
-            // Escanear cada 100ms para no saturar y ser más rápido
-            const now = Date.now();
-            if (now - lastScanTime > 100) {
-                lastScanTime = now;
-                canvas.height = video.videoHeight;
-                canvas.width = video.videoWidth;
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                const code = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height);
-                
-                if (code) {
-                    manualInput.value = code.data;
-                    checkDatabase(code.data);
-                    stopCamera();
-                    return;
-                }
+            canvas.height = video.videoHeight;
+            canvas.width = video.videoWidth;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const code = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height);
+            
+            if (code) {
+                manualInput.value = code.data;
+                checkDatabase(code.data);
+                stopCamera();
+                return;
             }
         }
         if (scanning) requestAnimationFrame(tick);
@@ -197,7 +197,6 @@
         mainCard.classList.remove('card-found', 'card-not-found');
 
         try {
-            // Fetch optimizado
             const response = await fetch(`${SHEETS_URL}?matricula=${encodeURIComponent(id)}`);
             const data = await response.json();
 
@@ -214,9 +213,9 @@
             } else {
                 mainCard.classList.add('card-not-found');
                 document.getElementById('resMatricula').innerText = "❌ NO REGISTRADO";
-                document.getElementById('resDetails').innerHTML = `<p style="text-align:center; font-size:0.8rem;">No existe en sistema.</p>`;
+                document.getElementById('resDetails').innerHTML = `<p style="text-align:center;">No autorizado.</p>`;
             }
-        } catch (e) { console.error("Error base datos"); }
+        } catch (e) { console.error("Error"); }
         finally { loader.style.display = 'none'; }
     }
 </script>
